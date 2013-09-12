@@ -10,13 +10,13 @@ class WrongNumberOfPlayersError <  StandardError ; end
 class NoSuchStrategyError <  StandardError ; end
 
 def rps_game_winner(game)
-	puts "Determining winner of this game: #{game}\n\n"
+	#puts "Determining winner of this game: #{game}\n\n"
     raise WrongNumberOfPlayersError unless game.length == 2
     # your code here
     raise NoSuchStrategyError unless (game[0][1] =~ /[rpsRPS]/ and game[1][1] =~ /[rpsRPS]/)
     if(game[0][1].downcase ==  game[1][1].downcase)
 		#easy case of tie
-		print "Tie\n"
+		#print "Tie\n"
 		return [game[0][0], game[0][1]]
     elsif(game[0][1] =~ /[rR]/)
 		if(game[1][1] =~ /[Ss]/)
@@ -37,10 +37,10 @@ def rps_game_winner(game)
 			return [game[0][0], game[0][1]]#Paper beats rock
 		end
 	end
-	print "No cases were met: #{game[0][1] =~ /[rR]/}\n"
+	#print "No cases were met: #{game[0][1] =~ /[rR]/}\n"
 end
 puts rps_game_winner([ ["First", "r"], ["Second", "p"] ]) # Dave would win since S > P
-
+puts "\n\n"
 #Part3b: Rock, Paper, Scissors
 tourny =[
     [
@@ -54,17 +54,19 @@ tourny =[
 ]
 def rps_tournament_winner(tournament)
 	#no nested left
-	if(!tournament[0][0].kind_of?(Array))
-		return rps_game_winner(tournament)
-	else
+	if(tournament[0][0].kind_of?(Array))
 		tournament[0] = rps_tournament_winner(tournament[0])
-		tournament[1] = rps_tournament_winner(tournament[1])
-		puts "Tournament is now: #{tournament}"
+		
 	end
+	if(tournament[1][0].kind_of?(Array))
+		tournament[1] = rps_tournament_winner(tournament[1])
+	end
+	#puts "Tournament is now: #{tournament}"
+	return rps_game_winner(tournament)
 end
 
-puts rps_tournament_winner([[["small test1", "r"],["small test2","p"]],[["small test3", "r"],["small test4","s"]]])
 puts rps_tournament_winner(tourny)
+puts "\n\n"
 
 #Part4: Anagrams
 def combine_anagrams(words)
@@ -73,20 +75,29 @@ def combine_anagrams(words)
     ret_array = []
     words.each do |word|
     #for each word, see if theres one already in the anagram array, otherwise, add to new slot
+		puts "Now analyzing word: #{word}"
 		sorted_temp = word.chars.sort_by(&:downcase).join
+		found = false
 		sorted.each_with_index do |sorted_word, index| 
 			if(sorted_word == sorted_temp)
 				#no need to keep a duplicate in sorted array
+				puts "#{word} is already present, adding to index #{index}"
 				ret_array[index].push(word)
-			else
-				#doesn't exist yet so create a new array
-				sorted.push(sorted_temp)
-				ret_array.push([word])
+				found = true
+				break
 			end
+		end
+		
+		#doesn't exist yet so create a new array
+		if(!found)
+			sorted.push(sorted_temp)
+			ret_array.push([word])
+			puts "#{word} is not already present, creating new index at #{ret_array.length}"
 		end
     end
     return ret_array
 end
+
 input = ['cars', 'for', 'potatoes', 'racs', 'four', 'scar', 'creams', 'scream']
 #puts input
-puts combine_anagrams(input).length
+puts "#{combine_anagrams(input)}"
