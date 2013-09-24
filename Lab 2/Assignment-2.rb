@@ -39,8 +39,14 @@ def rps_game_winner(game)
 	end
 	#print "No cases were met: #{game[0][1] =~ /[rR]/}\n"
 end
-puts rps_game_winner([ ["First", "r"], ["Second", "p"] ]) # Dave would win since S > P
+
 puts "\n\n"
+puts "Part 3a Test"
+puts "------------------------------------------------"
+puts rps_game_winner([ ["First", "r"], ["Second", "p"] ]) # Dave would win since S > P
+
+
+
 #Part3b: Rock, Paper, Scissors
 tourny =[
     [
@@ -65,8 +71,15 @@ def rps_tournament_winner(tournament)
 	return rps_game_winner(tournament)
 end
 
-puts rps_tournament_winner(tourny)
 puts "\n\n"
+puts "Part 3b Test"
+puts "------------------------------------------------"
+puts rps_tournament_winner(tourny)
+
+
+
+
+
 
 #Part4: Anagrams
 def combine_anagrams(words)
@@ -98,6 +111,181 @@ def combine_anagrams(words)
     return ret_array
 end
 
+puts "\n\n"
+puts "Part 4 Test"
+puts "------------------------------------------------"
 input = ['cars', 'for', 'potatoes', 'racs', 'four', 'scar', 'creams', 'scream']
-#puts input
 puts "#{combine_anagrams(input)}"
+
+
+
+#Part1a: Classes
+class Dessert
+    def initialize(name, calories)
+		@name = name
+		@calories = calories
+    end
+
+    def healthy?
+        return @calories < 200
+    end
+
+    def delicious?
+        return true
+    end
+end
+
+puts "\n\n"
+puts "Part 1a Test"
+puts "------------------------------------------------"
+brownie = Dessert.new("brownie", 200)
+icecream = Dessert.new("icecream", 180)
+puts "Is brownie healthy? #{brownie.healthy?}"
+puts "Is icecream healthy? #{icecream.healthy?}"
+
+#Part1b: Classes
+class JellyBean < Dessert
+	attr_accessor :flavor
+    def initialize(name, calories, flavor)
+        @flavor = flavor
+    end
+
+    def delicious?
+        return "black licorice" != flavor.downcase
+    end
+end
+
+puts "\n\n"
+puts "Part 1b Test"
+puts "------------------------------------------------"
+lemon = JellyBean.new("Lemon", 1, "Lemon")
+puts "Is lemon delicious? #{lemon.delicious?}"
+
+bl = JellyBean.new("BL", 1, "Black Licorice")
+puts "Is black licorice delicious? #{bl.delicious?}"
+
+#Part2: OOP
+class Class
+    def attr_accessor_with_history(attr_name)
+        attr_name = attr_name.to_s       # make sure it's a string
+        attr_reader attr_name            # create the attribute's getter
+        attr_reader attr_name+"_history" # create bar_history getter
+        class_eval %Q"
+            def #{attr_name}=(value)
+				if !defined?(@#{attr_name}_history)
+					@#{attr_name}_history = [nil]
+				end
+                @#{attr_name} = value
+                @#{attr_name}_history.push(value)
+            end
+        "
+    end
+end
+
+class Foo
+    attr_accessor_with_history :bar
+end
+
+
+
+puts "\n\n"
+puts "Part 2 Test"
+puts "------------------------------------------------"
+f = Foo.new
+f.bar = 1
+f.bar = 2
+g = Foo.new
+f.bar = 4
+puts "#{f.bar_history}"# => if your code works, should be [nil, 1, 2, 4]
+
+
+#Part 3a: Currency conversion.
+class Numeric
+	@@currencies = {'yen' => 0.013, 'euro' => 1.292, 'rupee' => 0.019, 'dollar' => 1}
+	def method_missing(method_id)
+		singular_currency = method_id.to_s.gsub( /s$/, '')
+		if @@currencies.has_key?(singular_currency)
+			self * @@currencies[singular_currency]
+		else
+			super
+		end
+	end
+	
+	def in(currency)
+		singular_currency = currency.to_s.gsub( /s$/, '')
+		if(@@currencies.has_key?(singular_currency))
+			self / @@currencies[singular_currency]
+		end	
+	end
+end
+
+puts "\n\n"
+puts "Part 3a Test"
+puts "------------------------------------------------"
+puts 5.dollars.in(:euros)
+puts 10.euros.in(:rupees)
+puts 1.dollar.in(:rupees)
+puts 10.rupees.in(:euro)
+puts 10.dollar.in(:dollars)
+
+
+#Part 3b: Palindromes
+class String
+	def palindrome?
+		temp = self.downcase.gsub(/[^0-9a-z]/, '')
+		temp == temp.reverse
+	end
+end
+puts "\n\n"
+puts "Part 3b Test"
+puts "------------------------------------------------"
+
+puts "foo".palindrome?
+puts "race car".palindrome?
+puts "!@#%@#%^123race !@#!@#  ;;        car321".palindrome?
+
+
+#Part 3c: Palindromes again
+module Enumerable
+	def palindrome?
+		temp =[]
+		self.each {|elt| temp << elt}
+		temp == temp.reverse
+	end
+end
+puts "\n\n"
+puts "Part 3b Test"
+puts "------------------------------------------------"
+
+puts (1..5).palindrome?
+puts [1,0,1].palindrome?
+puts [" ", 12, 2 ,12, " "].palindrome?
+
+
+
+
+#Part 4: Blocks
+class CartesianProduct
+    include Enumerable
+    
+    def initialize(coll1, coll2)
+		@product = []
+		coll1.each {|elt1| coll2.each {|elt2| @product << [elt1, elt2]}}
+    end
+    def each
+		@product.each {|elt| yield elt}
+    end
+end
+
+puts "\n\n"
+puts "Part 4 Test"
+puts "------------------------------------------------"
+c = CartesianProduct.new([:a,:b], [4,5])
+c.each {|elt| puts elt.inspect}
+# [:a, 4]
+# [:a, 5]
+# [:b, 4]
+# [:b, 5]
+c = CartesianProduct.new([:a,:b], [])
+c.each {|elt| puts elt.inspect}
+# nothing
